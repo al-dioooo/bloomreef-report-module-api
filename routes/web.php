@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\BalanceController;
+use App\Http\Controllers\PettyCashController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,3 +18,10 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+// Route::apiResource('petty-cash', PettyCashController::class);
+Route::get('/petty-cash', [PettyCashController::class, 'index']);
+Route::post('/petty-cash/store', [PettyCashController::class, 'store']);
+
+Route::get('/balance', [BalanceController::class, 'index']);
+Route::post('/balance/store', [BalanceController::class, 'store']);
