@@ -40,8 +40,8 @@ class BalanceController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'from' => 'required',
-            'to' => 'required',
+            'from' => 'required|date',
+            'to' => 'required|date',
 
             'amount' => 'required'
         ]);
@@ -55,10 +55,14 @@ class BalanceController extends Controller
                 'amount' => $request->input('amount')
             ]);
 
+            DB::commit();
+
             return response()->json([
                 'message' => __('api.store', ['pluralization' => 'a', 'model' => 'balance'])
             ]);
         } catch (Handler $e) {
+            DB::rollBack();
+
             return response()->json($e);
         }
     }

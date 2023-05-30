@@ -21,7 +21,7 @@ class CreatePettyCashUpdatesTable extends Migration
 
             $table->unsignedBigInteger('branch_id')->nullable();
 
-            $table->string('source', 100);
+            $table->string('source', 100)->nullable();
 
             $table->string('currency', 15)->nullable();
             $table->decimal('rate', 17, 2)->nullable();
@@ -34,7 +34,7 @@ class CreatePettyCashUpdatesTable extends Migration
 
             $table->string('status')->nullable();
 
-            $table->boolean('transaction_type')->default(0)->comment('0 = Income, 1 = Expense')->nullable();
+            $table->boolean('transaction_type')->comment('0 = Income, 1 = Expense')->nullable();
 
             $table->string('created_by')->nullable();
             $table->string('updated_by')->nullable();

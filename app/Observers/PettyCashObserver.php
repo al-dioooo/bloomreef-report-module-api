@@ -2,9 +2,9 @@
 
 namespace App\Observers;
 
-use App\Models\Balance;
 use App\Models\PettyCash;
 use App\Models\PettyCashUpdate;
+use Illuminate\Support\Facades\DB;
 
 class PettyCashObserver
 {
@@ -27,18 +27,28 @@ class PettyCashObserver
      */
     public function updated(PettyCash $pettyCash)
     {
-        PettyCashUpdate::create($pettyCash->getChanges());
+        $changes = array_merge([
+            'number' => $pettyCash->getAttribute('number')
+        ], $pettyCash->getChanges());
+
+        PettyCashUpdate::create($changes);
     }
 
     /**
-     * Handle the PettyCash "deleted" event.
+     * Handle the PettyCash "deleting" event.
      *
      * @param  \App\Models\PettyCash  $pettyCash
      * @return void
      */
-    public function deleted(PettyCash $pettyCash)
+    public function deleting(PettyCash $pettyCash)
     {
-        //
+        PettyCashUpdate::create([
+            'number' => $pettyCash->getAttribute('number')
+        ]);
+
+        $petty_cashes = PettyCash::whereDate('created_at', '>=', $pettyCash->getAttribute('created_at'))->update([
+            'balance' => DB::raw("`balance` + ({$pettyCash->getAttribute('balance')})")
+        ]);
     }
 
     /**

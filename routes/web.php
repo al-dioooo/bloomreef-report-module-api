@@ -22,6 +22,8 @@ Route::get('/', function () {
 // Route::apiResource('petty-cash', PettyCashController::class);
 Route::get('/petty-cash', [PettyCashController::class, 'index']);
 Route::post('/petty-cash/store', [PettyCashController::class, 'store']);
+Route::patch('/petty-cash/update', [PettyCashController::class, 'update']);
+Route::delete('/petty-cash/destroy', [PettyCashController::class, 'destroy']);
 
 Route::get('/balance', [BalanceController::class, 'index']);
 Route::post('/balance/store', [BalanceController::class, 'store']);

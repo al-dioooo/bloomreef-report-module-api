@@ -13,7 +13,7 @@ class UpdatePettyCashRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,15 @@ class UpdatePettyCashRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'number' => 'required|string|exists:petty_cashes,number',
+
+            'status' => 'nullable|string',
+
+            'balance' => 'nullable',
+
+            'note' => 'nullable|string',
+
+            'updated_by' => 'nullable|string'
         ];
     }
 }

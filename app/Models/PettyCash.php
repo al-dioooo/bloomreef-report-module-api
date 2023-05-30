@@ -154,13 +154,6 @@ class PettyCash extends Model
         });
     }
 
-    public function approve($status)
-    {
-        $this->status = $status;
-
-        $this->save();
-    }
-
     public function getBranchAttribute()
     {
         return $this->belongsToAnother(env('GENERIC_API_URL', "http://api-generic.test"), "branch", $this->branch_id, "branch-{$this->branch_id}");
@@ -179,5 +172,12 @@ class PettyCash extends Model
     public function details()
     {
         return $this->hasMany(PettyCashDetail::class, 'petty_cash_number', 'number');
+    }
+
+    public function updateBalance($amount)
+    {
+        if ((int) $this->transaction_type !== 2) {
+            $this->balance += $amount;
+        }
     }
 }

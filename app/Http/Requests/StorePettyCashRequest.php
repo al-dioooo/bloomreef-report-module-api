@@ -33,7 +33,7 @@ class StorePettyCashRequest extends FormRequest
 
             'grand_total' => 'required|numeric|min:0',
 
-            'balance' => 'required',
+            'balance' => 'nullable',
 
             'source' => 'required',
 

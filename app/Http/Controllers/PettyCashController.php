@@ -9,6 +9,7 @@ use App\Http\Requests\UpdatePettyCashRequest;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class PettyCashController extends Controller
 {
@@ -20,9 +21,9 @@ class PettyCashController extends Controller
     public function index(Request $request)
     {
         if ($request->query('paginate') === 'false') {
-            $data = PettyCash::with($request->query('with') ?? [])->filter($request->only(['search', 'branch', 'number', 'transaction_type', 'tax', 'tax_payment', 'from', 'to', 'currency', 'amount', 'status']))->oldest()->get();
+            $data = PettyCash::with($request->query('with') ?? [])->filter($request->only(['search', 'branch', 'number', 'transaction_type', 'tax', 'tax_payment', 'from', 'to', 'currency', 'amount', 'status']))->orderBy('updated_at', 'ASC')->get();
         } else {
-            $data = PettyCash::with($request->query('with') ?? [])->filter($request->only(['search', 'branch', 'number', 'transaction_type', 'tax', 'tax_payment', 'from', 'to', 'currency', 'amount', 'status']))->oldest()->paginate($request->query('paginate') ?? 15)->setPath('')->withQueryString();
+            $data = PettyCash::with($request->query('with') ?? [])->filter($request->only(['search', 'branch', 'number', 'transaction_type', 'tax', 'tax_payment', 'from', 'to', 'currency', 'amount', 'status']))->orderBy('updated_at', 'ASC')->paginate($request->query('paginate') ?? 15)->setPath('')->withQueryString();
         }
 
         return response()->json($data);
@@ -49,11 +50,6 @@ class PettyCashController extends Controller
         DB::beginTransaction();
 
         try {
-            // return response()->json([
-            //     'original' => $request->input('created_at'),
-            //     'parsed' => Carbon::parse($request->input('created_at'))->format('Y-m-d H:i:s')
-            // ], 400);
-
             $petty_cash = PettyCash::make([
                 'number' => $request->input('number'),
                 'branch_id' => $request->input('branch_id'),
@@ -68,7 +64,8 @@ class PettyCashController extends Controller
                 'created_by' => $request->input('created_by')
             ]);
 
-            $petty_cash->created_at = Carbon::parse($request->input('created_at'))->format('Y-m-d h:i:s');
+            $petty_cash->created_at = Carbon::parse($request->input('created_at'))->format('Y-m-d h:m:s');
+            $petty_cash->updated_at = Carbon::parse($request->input('updated_at'))->format('Y-m-d h:m:s');
 
             $petty_cash->save();
 
@@ -115,22 +112,76 @@ class PettyCashController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \App\Http\Requests\UpdatePettyCashRequest  $request
-     * @param  \App\Models\PettyCash  $pettyCash
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdatePettyCashRequest $request, PettyCash $pettyCash)
+    public function update(UpdatePettyCashRequest $request)
     {
-        //
+        DB::beginTransaction();
+
+        try {
+            $petty_cash = PettyCash::find($request->input('number'));
+
+            $petty_cash->update($request->validatedExcept(['number']));
+
+            $petty_cash->updated_at = Carbon::parse($request->input('updated_at'))->format('Y-m-d h:m:s');
+
+            $petty_cash->save();
+
+            DB::commit();
+
+            return response()->json([
+                'message' => __('api.update', ['pluralization' => 'a', 'model' => 'petty cash']),
+                'data' => [
+                    'petty_cash' => $petty_cash
+                ]
+            ]);
+        } catch (Handler $e) {
+            DB::rollBack();
+
+            return response()->json($e);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \App\Models\PettyCash  $pettyCash
+     * @param  \Illuminate\Http\Request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(PettyCash $pettyCash)
+    public function destroy(Request $request)
     {
-        //
+        $request->validate([
+            'number' => 'required|string|exists:petty_cashes,number'
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $petty_cash = PettyCash::findOrFail($request->input('number'));
+
+            $petty_cash->delete();
+
+            $total = 0;
+
+            if ($petty_cash->transaction_type === 1) {
+                $total -= $petty_cash->grand_total;
+            } else if ($petty_cash->transaction_type === 0) {
+                $total += $petty_cash->grand_total;
+            }
+
+            $petty_cashes = PettyCash::whereDate('created_at', '>=', $petty_cash->created_at)->update([
+                'balance' => DB::raw("`balance` - ({$total})")
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'message' => __('api.destroy', ['pluralization' => 'a', 'model' => 'petty cash']),
+            ]);
+        } catch (Handler $e) {
+            DB::rollBack();
+
+            return response()->json($e);
+        }
     }
 }
