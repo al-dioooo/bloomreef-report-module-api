@@ -2,6 +2,7 @@
 
 namespace App\Observers;
 
+use App\Models\Balance;
 use App\Models\PettyCash;
 use App\Models\PettyCashUpdate;
 use Illuminate\Support\Facades\DB;
@@ -46,8 +47,30 @@ class PettyCashObserver
             'number' => $pettyCash->getAttribute('number')
         ]);
 
-        $petty_cashes = PettyCash::whereDate('created_at', '>=', $pettyCash->getAttribute('created_at'))->update([
-            'balance' => DB::raw("`balance` + ({$pettyCash->getAttribute('balance')})")
+        $total = 0;
+
+        if ($pettyCash->transaction_type === 1) {
+            $total -= $pettyCash->grand_total;
+        } else if ($pettyCash->transaction_type === 0) {
+            $total += $pettyCash->grand_total;
+        }
+
+        $petty_cashes = PettyCash::where('status', 'approved')
+            ->whereDate('updated_at', '>=', $pettyCash->updated_at)
+            ->whereTime('updated_at', '>=', $pettyCash->updated_at)
+            ->update([
+                'balance' => DB::raw("`balance` - ({$total})")
+            ]);
+
+        $latest = PettyCash::where('status', 'approved')
+            ->where('transaction_type', '<=', 1)
+            ->orderBy('updated_at', 'ASC')
+            ->first();
+
+        Balance::create([
+            'from' => $latest->created_at,
+            'to' => $latest->created_at,
+            'amount' => $latest->balance
         ]);
     }
 

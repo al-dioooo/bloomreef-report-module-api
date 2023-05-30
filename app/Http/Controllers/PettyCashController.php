@@ -161,18 +161,6 @@ class PettyCashController extends Controller
 
             $petty_cash->delete();
 
-            $total = 0;
-
-            if ($petty_cash->transaction_type === 1) {
-                $total -= $petty_cash->grand_total;
-            } else if ($petty_cash->transaction_type === 0) {
-                $total += $petty_cash->grand_total;
-            }
-
-            $petty_cashes = PettyCash::whereDate('created_at', '>=', $petty_cash->created_at)->update([
-                'balance' => DB::raw("`balance` - ({$total})")
-            ]);
-
             DB::commit();
 
             return response()->json([
