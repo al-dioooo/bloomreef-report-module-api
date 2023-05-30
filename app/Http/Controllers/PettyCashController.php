@@ -64,8 +64,8 @@ class PettyCashController extends Controller
                 'created_by' => $request->input('created_by')
             ]);
 
-            $petty_cash->created_at = Carbon::parse($request->input('created_at'))->format('Y-m-d h:m:s');
-            $petty_cash->updated_at = Carbon::parse($request->input('updated_at'))->format('Y-m-d h:m:s');
+            $petty_cash->created_at = Carbon::parse($request->input('created_at'))->format('Y-m-d H:i:s');
+            $petty_cash->updated_at = Carbon::parse($request->input('updated_at'))->format('Y-m-d H:i:s');
 
             $petty_cash->save();
 
@@ -123,7 +123,7 @@ class PettyCashController extends Controller
 
             $petty_cash->update($request->validatedExcept(['number']));
 
-            $petty_cash->updated_at = Carbon::parse($request->input('updated_at'))->format('Y-m-d h:m:s');
+            $petty_cash->updated_at = Carbon::parse($request->input('updated_at'))->format('Y-m-d H:i:s');
 
             $petty_cash->save();
 
