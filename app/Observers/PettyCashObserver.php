@@ -55,11 +55,13 @@ class PettyCashObserver
             $total += $pettyCash->grand_total;
         }
 
-        $petty_cashes = PettyCash::where('status', 'approved')
+        $petty_cashes = PettyCash::query()
+            ->where('status', 'approved')
             ->whereDate('updated_at', '>=', $pettyCash->updated_at)
             ->whereTime('updated_at', '>=', $pettyCash->updated_at)
             ->update([
-                'balance' => DB::raw("`balance` - ({$total})")
+                'balance' => DB::raw("`balance` - ({$total})"),
+                'updated_at' => DB::raw("`updated_at`")
             ]);
 
         $latest = PettyCash::where('status', 'approved')
