@@ -24,6 +24,8 @@ class CreateTaxPaymentsTable extends Migration
 
             $table->decimal('total', 17, 2)->nullable();
 
+            $table->decimal('balance', 17, 2)->nullable();
+
             $table->dateTime('from');
             $table->dateTime('to');
 

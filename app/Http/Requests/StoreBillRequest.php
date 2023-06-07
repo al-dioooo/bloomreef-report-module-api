@@ -13,7 +13,7 @@ class StoreBillRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,37 @@ class StoreBillRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'bill_number' => 'required|string|unique:bills,number',
+
+            'branch_id' => 'required',
+
+            'currency' => 'required|string',
+            'rate' => 'required',
+
+            'dpp' => 'required',
+            'discount' => 'nullable',
+            'ppn' => 'required',
+            'ppn_percentage' => 'required',
+            'advance_payment' => 'nullable',
+            'grand_total' => 'required',
+
+            'balance' => 'nullable',
+
+            'note' => 'nullable|string',
+
+            'type' => 'required|string',
+            'transaction_type' => 'required',
+
+            'status' => 'required|string',
+
+            'created_by' => 'required',
+
+            'transaction_date' => 'required|date',
+            'due_date' => 'required|date',
+
+            'reference_numbers' => 'nullable|array',
+
+            'payor_or_payee_code' => 'required'
         ];
     }
 }

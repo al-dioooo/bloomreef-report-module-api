@@ -69,11 +69,7 @@ class PettyCashDetail extends Model
             }
         })->when($filters['status'] ?? null, function ($query, $status) {
             $query->whereRelation('pettyCash', function ($q) use ($status) {
-                if ($status === 'settled') {
-                    $q->where('status', 'approved');
-                } else {
-                    $q->where('status', $status);
-                }
+                $q->where('status', $status);
             });
         })->when($filters['tax'] ?? null, function ($query, $tax) {
             if ($tax === 'ppn') {

@@ -6,23 +6,9 @@ use App\Traits\CallRelationship;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Bill extends Model
+class BillUpdate extends Model
 {
     use HasFactory, CallRelationship;
-
-    /**
-     * The primary key associated with the table.
-     *
-     * @var string
-     */
-    protected $primaryKey = 'number';
-
-    /**
-     * Indicates if the model's ID is auto-incrementing.
-     *
-     * @var bool
-     */
-    public $incrementing = false;
 
     /**
      * The attributes that are mass assignable.
@@ -127,33 +113,8 @@ class Bill extends Model
         });
     }
 
-    public function invoice()
-    {
-        return $this->hasOne(InvoiceDetail::class, 'bill_number');
-    }
-
-    public function type()
-    {
-        return $this->belongsTo(Type::class, 'type', 'code');
-    }
-
-    public function taxPayment()
-    {
-        return $this->hasMany(TaxPaymentDetail::class, 'bill_number', 'number');
-    }
-
-    public function latestTaxPayment()
-    {
-        return $this->hasOne(TaxPaymentDetail::class, 'bill_number', 'number')->latestOfMany();
-    }
-
     public function getBranchAttribute()
     {
         return $this->belongsToAnother(env('GENERIC_API_URL', "http://api-generic.test"), "branch", $this->branch_id, "branch-{$this->branch_id}");
-    }
-
-    public function cashFlows()
-    {
-        return $this->morphOne(CashFlow::class, 'detail');
     }
 }

@@ -3,9 +3,11 @@
 namespace App\Observers;
 
 use App\Models\Balance;
+use App\Models\CashFlow;
 use App\Models\PettyCash;
 use App\Models\PettyCashUpdate;
 use Illuminate\Support\Facades\DB;
+use ReflectionClass;
 
 class PettyCashObserver
 {
@@ -18,6 +20,15 @@ class PettyCashObserver
     public function created(PettyCash $pettyCash)
     {
         PettyCashUpdate::create($pettyCash->attributesToArray());
+
+        if ($pettyCash->getAttribute('balance') !== null && $pettyCash->getAttribute('status') === 'settled') {
+            CashFlow::updateOrCreate([
+                'transaction_number' => $pettyCash->getAttribute('number')
+            ], [
+                'model' => (new ReflectionClass(PettyCash::class))->getShortName(),
+                'balance' => $pettyCash->getAttribute('balance')
+            ]);
+        }
     }
 
     /**
@@ -33,6 +44,15 @@ class PettyCashObserver
         ], $pettyCash->getChanges());
 
         PettyCashUpdate::create($changes);
+
+        if ($pettyCash->getAttribute('balance') !== null && $pettyCash->getAttribute('status') === 'settled') {
+            CashFlow::updateOrCreate([
+                'transaction_number' => $pettyCash->getAttribute('number')
+            ], [
+                'model' => (new ReflectionClass(PettyCash::class))->getShortName(),
+                'balance' => $pettyCash->getAttribute('balance')
+            ]);
+        }
     }
 
     /**
@@ -56,7 +76,7 @@ class PettyCashObserver
         }
 
         $petty_cashes = PettyCash::query()
-            ->where('status', 'approved')
+            ->where('status', 'settled')
             ->whereDate('updated_at', '>=', $pettyCash->updated_at)
             ->whereTime('updated_at', '>=', $pettyCash->updated_at)
             ->update([
@@ -64,7 +84,7 @@ class PettyCashObserver
                 'updated_at' => DB::raw("`updated_at`")
             ]);
 
-        $latest = PettyCash::where('status', 'approved')
+        $latest = PettyCash::where('status', 'settled')
             ->where('transaction_type', '<=', 1)
             ->orderBy('updated_at', 'ASC')
             ->first();
@@ -74,6 +94,10 @@ class PettyCashObserver
             'to' => $latest->created_at,
             'amount' => $latest->balance
         ]);
+
+        if ($pettyCash->getAttribute('balance') !== null && $pettyCash->getAttribute('status') === 'settled') {
+            CashFlow::destroy($pettyCash->getAttribute('number'));
+        }
     }
 
     /**

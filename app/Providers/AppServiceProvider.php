@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Models\Bill;
 use App\Models\PettyCash;
+use App\Observers\BillObserver;
 use App\Observers\PettyCashObserver;
 use Illuminate\Http\Request;
 use Illuminate\Support\Arr;
@@ -31,5 +33,6 @@ class AppServiceProvider extends ServiceProvider
     {
         // Model Observers
         PettyCash::observe(PettyCashObserver::class);
+        Bill::observe(BillObserver::class);
     }
 }

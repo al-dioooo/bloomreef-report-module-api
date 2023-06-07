@@ -96,11 +96,7 @@ class PettyCash extends Model
                 $query->where('transaction_type', 2);
             }
         })->when($filters['status'] ?? null, function ($query, $status) {
-            if ($status === 'settled') {
-                $query->where('status', 'approved');
-            } else {
-                $query->where('status', $status);
-            }
+            $query->where('status', $status);
         })->when($filters['branch'] ?? null, function ($query, $branch) {
             $query->where('branch_id', $branch);
         })->when($filters['tax'] ?? null, function ($query, $tax) {
@@ -179,5 +175,10 @@ class PettyCash extends Model
         if ((int) $this->transaction_type !== 2) {
             $this->balance += $amount;
         }
+    }
+
+    public function cashFlows()
+    {
+        return $this->morphOne(CashFlow::class, 'detail');
     }
 }

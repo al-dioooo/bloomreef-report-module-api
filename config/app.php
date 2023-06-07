@@ -230,6 +230,11 @@ return [
         'Validator' => Illuminate\Support\Facades\Validator::class,
         'View' => Illuminate\Support\Facades\View::class,
 
+        // Polymorphic Relationships
+        'Bill' => App\Models\Bill::class,
+        'PettyCash' => App\Models\PettyCash::class,
+        'Invoice' => App\Models\Invoice::class,
+        'Transaction' => App\Models\Transaction::class
     ],
 
 ];

@@ -13,7 +13,7 @@ class UpdateBillRequest extends FormRequest
      */
     public function authorize()
     {
-        return false;
+        return true;
     }
 
     /**
@@ -24,7 +24,37 @@ class UpdateBillRequest extends FormRequest
     public function rules()
     {
         return [
-            //
+            'number' => 'required|string|exists:bills,number',
+
+            'branch_id' => 'nullable',
+
+            'currency' => 'nullable|string',
+            'rate' => 'nullable',
+
+            'dpp' => 'nullable',
+            'discount' => 'nullable',
+            'ppn' => 'nullable',
+            'ppn_percentage' => 'nullable',
+            'advance_payment' => 'nullable',
+            'grand_total' => 'nullable',
+
+            'balance' => 'nullable',
+
+            'note' => 'nullable|string',
+
+            'type' => 'nullable|string|exists:types,code',
+            'transaction_type' => 'nullable',
+
+            'status' => 'nullable|string',
+
+            'updated_by' => 'required',
+
+            'transaction_date' => 'nullable|date',
+            'due_date' => 'nullable|date',
+
+            'reference_numbers' => 'nullable|array',
+
+            'payor_or_payee_code' => 'nullable'
         ];
     }
 }
