@@ -164,7 +164,7 @@ class PettyCashController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => __('api.destroy', ['pluralization' => 'a', 'model' => 'petty cash']),
+                'message' => __('api.destroy.success', ['pluralization' => 'a', 'model' => 'petty cash']),
             ]);
         } catch (Handler $e) {
             DB::rollBack();

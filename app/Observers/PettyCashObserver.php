@@ -21,14 +21,13 @@ class PettyCashObserver
     {
         PettyCashUpdate::create($pettyCash->attributesToArray());
 
-        if ($pettyCash->getAttribute('balance') !== null && $pettyCash->getAttribute('status') === 'settled') {
-            CashFlow::updateOrCreate([
-                'transaction_number' => $pettyCash->getAttribute('number')
-            ], [
-                'model' => (new ReflectionClass(PettyCash::class))->getShortName(),
-                'balance' => $pettyCash->getAttribute('balance')
-            ]);
-        }
+        CashFlow::updateOrCreate([
+            'transaction_number' => $pettyCash->getAttribute('number')
+        ], [
+            'model' => (new ReflectionClass(PettyCash::class))->getShortName(),
+            'balance' => $pettyCash->getAttribute('balance'),
+            'status' => $pettyCash->getAttribute('status') === 'settled' ? 'settled' : 'outstanding'
+        ]);
     }
 
     /**
@@ -45,14 +44,13 @@ class PettyCashObserver
 
         PettyCashUpdate::create($changes);
 
-        if ($pettyCash->getAttribute('balance') !== null && $pettyCash->getAttribute('status') === 'settled') {
-            CashFlow::updateOrCreate([
-                'transaction_number' => $pettyCash->getAttribute('number')
-            ], [
-                'model' => (new ReflectionClass(PettyCash::class))->getShortName(),
-                'balance' => $pettyCash->getAttribute('balance')
-            ]);
-        }
+        CashFlow::updateOrCreate([
+            'transaction_number' => $pettyCash->getAttribute('number')
+        ], [
+            'model' => (new ReflectionClass(PettyCash::class))->getShortName(),
+            'balance' => $pettyCash->getAttribute('balance'),
+            'status' => $pettyCash->getAttribute('status') === 'settled' ? 'settled' : 'outstanding'
+        ]);
     }
 
     /**
@@ -95,8 +93,10 @@ class PettyCashObserver
             'amount' => $latest->balance
         ]);
 
-        if ($pettyCash->getAttribute('balance') !== null && $pettyCash->getAttribute('status') === 'settled') {
-            CashFlow::destroy($pettyCash->getAttribute('number'));
+        $cash_flow = CashFlow::find($pettyCash->getAttribute('number'));
+
+        if ($cash_flow) {
+            $cash_flow->delete();
         }
     }
 

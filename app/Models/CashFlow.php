@@ -2,20 +2,28 @@
 
 namespace App\Models;
 
-use App\Traits\HasDynamicRelationship;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class CashFlow extends Model
 {
-    use HasFactory, HasDynamicRelationship;
+    use HasFactory;
 
     protected $fillable = [
         'transaction_number',
         'model',
 
-        'balance'
+        'balance',
+
+        'status'
     ];
+
+    public function scopeFilter($query, array $filters)
+    {
+        $query->when($filters['status'] ?? null, function ($query, $status) {
+            $query->where('status', $status);
+        });
+    }
 
     public function detail()
     {

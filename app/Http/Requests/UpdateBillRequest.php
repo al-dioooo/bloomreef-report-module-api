@@ -52,7 +52,7 @@ class UpdateBillRequest extends FormRequest
             'transaction_date' => 'nullable|date',
             'due_date' => 'nullable|date',
 
-            'reference_numbers' => 'nullable|array',
+            'reference_number' => 'nullable|array',
 
             'payor_or_payee_code' => 'nullable'
         ];

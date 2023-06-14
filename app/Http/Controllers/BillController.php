@@ -70,7 +70,7 @@ class BillController extends Controller
                 'created_by' => $request->input('created_by'),
                 'transaction_date' => $request->input('transaction_date'),
                 'due_date' => $request->input('due_date'),
-                'reference_number' => $request->input('reference_numbers'),
+                'reference_number' => $request->input('reference_number'),
             ]);
 
             $bill->created_at = Carbon::parse($request->input('created_at'))->format('Y-m-d H:i:s');

@@ -21,6 +21,8 @@ class CreateCashFlowsTable extends Migration
 
             $table->string('balance', 17, 2)->nullable();
 
+            $table->string('status')->default('outstanding');
+
             $table->timestamps();
         });
     }

@@ -35,9 +35,9 @@ trait CallRelationship
 
             if ($get->clientError()) {
                 Log::channel('slack')->error('Call error', ['Response' => json_decode($get->body())]);
+            } else {
+                return json_decode($get->body());
             }
-
-            return json_decode($get->body());
         };
     }
 }

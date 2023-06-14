@@ -15,9 +15,9 @@ class CashFlowController extends Controller
     public function index(Request $request)
     {
         if ($request->query('paginate') === 'false') {
-            $data = CashFlow::with('detail')->orderBy('updated_at', 'ASC')->get();
+            $data = CashFlow::with('detail')->filter($request->only(['status']))->orderBy('updated_at', 'ASC')->get();
         } else {
-            $data = CashFlow::with('detail')->orderBy('updated_at', 'ASC')->paginate($request->query('paginate') ?? 15)->setPath('')->withQueryString();
+            $data = CashFlow::with('detail')->filter($request->only(['status']))->orderBy('updated_at', 'ASC')->paginate($request->query('paginate') ?? 15)->setPath('')->withQueryString();
         }
 
         return response()->json($data);

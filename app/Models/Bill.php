@@ -58,12 +58,12 @@ class Bill extends Model
 
         'created_by',
         'updated_by',
-        'bill_date',
+        'transaction_date',
         'due_date'
     ];
 
     protected $casts = [
-        'reference_number' => 'array'
+        'reference_number' => 'json'
     ];
 
     /**
@@ -74,7 +74,10 @@ class Bill extends Model
     protected $hidden = [];
 
     protected $appends = [
-        'branch'
+        'branch',
+        'customer',
+        'supplier',
+        'type_detail'
     ];
 
     public function scopeFilter($query, array $filters)
@@ -86,8 +89,8 @@ class Bill extends Model
         })->when($filters['grand_total'] ?? null, function ($query, $grand_total) {
             $query->where('grand_total', 'like', '%' . $grand_total . '%');
         })->when(($filters['from'] ?? null) && ($filters['to'] ?? null), function ($query) {
-            $query->whereDate('bill_date', '>=', request('from'))
-                ->whereDate('bill_date', '<=', request('to'));
+            $query->whereDate('transaction_date', '>=', request('from'))
+                ->whereDate('transaction_date', '<=', request('to'));
         })->when($filters['transaction_type'] ?? null, function ($query, $type) {
             if ($type === 'income') {
                 $query->where('transaction_type', 0);
@@ -98,43 +101,14 @@ class Bill extends Model
             $query->where('status', $status);
         })->when($filters['type'] ?? null, function ($query, $type) {
             $query->where('type', $type);
-        })->when(($filters['payor_or_payee'] ?? null) && ($filters['type'] ?? null), function ($query) {
-            if ((request('type') === 'po' || request('type') === 'rt-po')) {
-                $query->whereHas('supplier', function ($q) {
-                    $q->where('supplier_code', request('payor_or_payee'));
-                });
-            } else {
-                $query->where('type', request('type'))->whereHas('customer', function ($q) {
-                    $q->where('customer_code', request('payor_or_payee'));
-                });
-            }
         })->when($filters['branch'] ?? null, function ($query, $branch) {
             $query->where('branch_id', $branch);
-        })->when($filters['tax'] ?? null, function ($query, $tax) {
-            if ($tax === 'ppn') {
-                $query->where('ppn', '!=', 0)->whereNotNull('ppn');
-            }
-        })->when($filters['tax_payment'] ?? null, function ($query, $tax_payment) {
-            if ($tax_payment === 'only') {
-                $query->whereHas('taxPayment');
-            } else if ($tax_payment === 'without') {
-                $query->where(function ($query) {
-                    $query->whereDoesntHave('latestTaxPayment')->orWhereHas('latestTaxPayment', function ($q) {
-                        $q->whereRelation('tax', 'status', 'drop');
-                    });
-                });
-            }
         });
     }
 
     public function invoice()
     {
         return $this->hasOne(InvoiceDetail::class, 'bill_number');
-    }
-
-    public function type()
-    {
-        return $this->belongsTo(Type::class, 'type', 'code');
     }
 
     public function taxPayment()
@@ -145,6 +119,21 @@ class Bill extends Model
     public function latestTaxPayment()
     {
         return $this->hasOne(TaxPaymentDetail::class, 'bill_number', 'number')->latestOfMany();
+    }
+
+    public function getCustomerAttribute()
+    {
+        return $this->belongsToAnother(env('CASHIER_API_URL', "http://api-kasir.test"), "customer", $this->payor_or_payee_code, "customer-{$this->payor_or_payee_code}");
+    }
+
+    public function getSupplierAttribute()
+    {
+        return $this->belongsToAnother(env('CASHIER_API_URL', "http://api-kasir.test"), "supplier", $this->payor_or_payee_code, "supplier-{$this->payor_or_payee_code}");
+    }
+
+    public function getTypeDetailAttribute()
+    {
+        return $this->belongsToAnother(env('CASHIER_API_URL', "http://api-kasir.test"), "type", $this->type, "type-{$this->type}");
     }
 
     public function getBranchAttribute()

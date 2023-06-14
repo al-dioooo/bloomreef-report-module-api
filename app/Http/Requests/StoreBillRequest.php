@@ -52,7 +52,7 @@ class StoreBillRequest extends FormRequest
             'transaction_date' => 'required|date',
             'due_date' => 'required|date',
 
-            'reference_numbers' => 'nullable|array',
+            'reference_number' => 'nullable|array',
 
             'payor_or_payee_code' => 'required'
         ];

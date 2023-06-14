@@ -19,14 +19,13 @@ class BillObserver
     {
         BillUpdate::create($bill->attributesToArray());
 
-        if ($bill->getAttribute('balance') !== null && $bill->getAttribute('status') === 'settled') {
-            CashFlow::updateOrCreate([
-                'transaction_number' => $bill->getAttribute('number')
-            ], [
-                'model' => (new ReflectionClass(Bill::class))->getShortName(),
-                'balance' => $bill->getAttribute('balance')
-            ]);
-        }
+        CashFlow::updateOrCreate([
+            'transaction_number' => $bill->getAttribute('number')
+        ], [
+            'model' => (new ReflectionClass(Bill::class))->getShortName(),
+            'balance' => $bill->getAttribute('balance'),
+            'status' => $bill->getAttribute('status') === 'settled' ? 'settled' : 'outstanding',
+        ]);
     }
 
     /**
@@ -43,14 +42,13 @@ class BillObserver
 
         BillUpdate::create($changes);
 
-        if ($bill->getAttribute('balance') !== null && $bill->getAttribute('status') === 'settled') {
-            CashFlow::updateOrCreate([
-                'transaction_number' => $bill->getAttribute('number')
-            ], [
-                'model' => (new ReflectionClass(Bill::class))->getShortName(),
-                'balance' => $bill->getAttribute('balance')
-            ]);
-        }
+        CashFlow::updateOrCreate([
+            'transaction_number' => $bill->getAttribute('number')
+        ], [
+            'model' => (new ReflectionClass(Bill::class))->getShortName(),
+            'balance' => $bill->getAttribute('balance'),
+            'status' => $bill->getAttribute('status') === 'settled' ? 'settled' : 'outstanding',
+        ]);
     }
 
     /**
