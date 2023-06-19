@@ -24,7 +24,7 @@ class BillObserver
         ], [
             'model' => (new ReflectionClass(Bill::class))->getShortName(),
             'balance' => $bill->getAttribute('balance'),
-            'status' => $bill->getAttribute('status') === 'settled' ? 'settled' : 'outstanding',
+            'status' => $bill->getAttribute('status'),
         ]);
     }
 
@@ -47,7 +47,7 @@ class BillObserver
         ], [
             'model' => (new ReflectionClass(Bill::class))->getShortName(),
             'balance' => $bill->getAttribute('balance'),
-            'status' => $bill->getAttribute('status') === 'settled' ? 'settled' : 'outstanding',
+            'status' => $bill->getAttribute('status'),
         ]);
     }
 

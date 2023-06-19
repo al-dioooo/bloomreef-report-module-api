@@ -26,7 +26,7 @@ class PettyCashObserver
         ], [
             'model' => (new ReflectionClass(PettyCash::class))->getShortName(),
             'balance' => $pettyCash->getAttribute('balance'),
-            'status' => $pettyCash->getAttribute('status') === 'settled' ? 'settled' : 'outstanding'
+            'status' => $pettyCash->getAttribute('status')
         ]);
     }
 
@@ -49,7 +49,7 @@ class PettyCashObserver
         ], [
             'model' => (new ReflectionClass(PettyCash::class))->getShortName(),
             'balance' => $pettyCash->getAttribute('balance'),
-            'status' => $pettyCash->getAttribute('status') === 'settled' ? 'settled' : 'outstanding'
+            'status' => $pettyCash->getAttribute('status')
         ]);
     }
 

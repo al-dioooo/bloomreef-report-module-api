@@ -22,6 +22,9 @@ class CashFlow extends Model
     {
         $query->when($filters['status'] ?? null, function ($query, $status) {
             $query->where('status', $status);
+        })->when(($filters['from'] ?? null) && ($filters['to'] ?? null), function ($query) {
+            $query->whereDate('updated_at', '>=', request('from'))
+                ->whereDate('updated_at', '<=', request('to'));
         });
     }
 
