@@ -93,10 +93,19 @@ class PettyCashObserver
             'amount' => $latest->balance
         ]);
 
-        $cash_flow = CashFlow::find($pettyCash->getAttribute('number'));
+        $cash_flow = CashFlow::where('transaction_number', $pettyCash->getAttribute('number'))->first();
 
         if ($cash_flow) {
             $cash_flow->delete();
+
+            $cash_flows = CashFlow::query()
+                ->where('status', 'settled')
+                ->whereDate('updated_at', '>=', $pettyCash->updated_at)
+                ->whereTime('updated_at', '>=', $pettyCash->updated_at)
+                ->update([
+                    'balance' => DB::raw("`balance` - ({$total})"),
+                    'updated_at' => DB::raw("`updated_at`")
+                ]);
         }
     }
 
