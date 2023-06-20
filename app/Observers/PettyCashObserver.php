@@ -100,8 +100,8 @@ class PettyCashObserver
 
             $cash_flows = CashFlow::query()
                 ->where('status', 'settled')
-                ->whereDate('updated_at', '>=', $pettyCash->updated_at)
-                ->whereTime('updated_at', '>=', $pettyCash->updated_at)
+                ->whereDate('updated_at', '>=', $cash_flow->updated_at)
+                ->whereTime('updated_at', '>=', $cash_flow->updated_at)
                 ->update([
                     'balance' => DB::raw("`balance` - ({$total})"),
                     'updated_at' => DB::raw("`updated_at`")
