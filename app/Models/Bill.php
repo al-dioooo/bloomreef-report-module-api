@@ -77,7 +77,8 @@ class Bill extends Model
         'branch',
         'customer',
         'supplier',
-        'type_detail'
+        'type_detail',
+        'order'
     ];
 
     public function scopeFilter($query, array $filters)
@@ -139,6 +140,11 @@ class Bill extends Model
     public function getBranchAttribute()
     {
         return $this->belongsToAnother(env('GENERIC_API_URL', "http://api-generic.test"), "branch", $this->branch_id, "branch-{$this->branch_id}");
+    }
+
+    public function getOrderAttribute()
+    {
+        return $this->belongsToAnother(env('KACAFILM_API_URL', "https://guguskarangmekar.com/apiKacaFilmDev"), "filterOrder", "?order_number=CBGBGR_2023062100308&model_mobil=&team=&id_cabang=&no_polisi=&status=&tanggal_dari=&tanggal_sampai=&page=1&sistem_pembayaran=", "order-{$this->branch_id}");
     }
 
     public function cashFlows()
