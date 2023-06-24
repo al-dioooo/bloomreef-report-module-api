@@ -21,9 +21,9 @@ class BillController extends Controller
     public function index(Request $request)
     {
         if ($request->query('paginate') === 'false') {
-            $data = Bill::filter($request->only(['search', 'branch', 'number', 'transaction_type', 'tax', 'tax_payment', 'from', 'to', 'currency', 'amount', 'status']))->orderBy('updated_at', 'ASC')->get();
+            $data = Bill::with(['histories'])->filter($request->only(['search', 'branch', 'number', 'transaction_type', 'tax', 'tax_payment', 'from', 'to', 'currency', 'amount', 'status']))->orderBy('updated_at', 'ASC')->get();
         } else {
-            $data = Bill::filter($request->only(['search', 'branch', 'number', 'transaction_type', 'tax', 'tax_payment', 'from', 'to', 'currency', 'amount', 'status']))->orderBy('updated_at', 'ASC')->paginate($request->query('paginate') ?? 15)->setPath('')->withQueryString();
+            $data = Bill::with(['histories'])->filter($request->only(['search', 'branch', 'number', 'transaction_type', 'tax', 'tax_payment', 'from', 'to', 'currency', 'amount', 'status']))->orderBy('updated_at', 'ASC')->paginate($request->query('paginate') ?? 15)->setPath('')->withQueryString();
         }
 
         return response()->json($data);

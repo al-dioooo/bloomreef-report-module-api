@@ -151,4 +151,9 @@ class Bill extends Model
     {
         return $this->morphOne(CashFlow::class, 'detail');
     }
+
+    public function histories()
+    {
+        return $this->hasMany(BillUpdate::class, 'number', 'number');
+    }
 }
